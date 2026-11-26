@@ -1,4 +1,6 @@
+import { useId } from "react";
 export default function Mascot({ large = false, waving = false }) {
+  const gradientId = useId();
   return (
     <div
       className={`mascot ${large ? "mascot--large" : ""} ${waving ? "mascot--wave" : ""}`}
@@ -16,14 +18,14 @@ export default function Mascot({ large = false, waving = false }) {
         <path
           className="mascot-body"
           d="M60 7c5 0 8 6 11 13l7 14 15 2c15 2 18 12 7 22l-11 10 3 16c3 15-6 21-19 14L60 90 46 98c-13 7-22 1-19-14l3-16-11-10c-11-10-8-20 7-22l15-2 7-14C52 13 55 7 60 7Z"
-          fill="url(#starGradient)"
+          fill={`url(#${gradientId})`}
           stroke="#477a5c"
           strokeWidth="3"
           strokeLinejoin="round"
         />
         <defs>
           <linearGradient
-            id="starGradient"
+            id={gradientId}
             x1="26"
             y1="10"
             x2="95"

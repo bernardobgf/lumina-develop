@@ -46,7 +46,7 @@ export default function App() {
   return <div className="app-shell">
     {page === 'landing' && <LandingPage onStart={(mode = 'login') => { setAuthMode(mode); setAuthError(''); setPage('auth'); }}/>}
     {page === 'auth' && <AuthPage initialMode={authMode} onSubmit={handleAuth} onBack={() => setPage('landing')} error={authError} loading={authLoading}/>}
-    {!['landing', 'auth'].includes(page) && user && <><IslandMenu page={page} user={user} onLogout={logout} onNavigate={setPage}/>{page === 'chat' && <ChatPage onError={notifyError} onSuccess={notifySuccess}/>}{page === 'dashboard' && <DashboardPage/>}{page === 'exercises' && <ExercisesPage onError={notifyError}/>}{page === 'settings' && <SettingsPage user={user}/>}</>}
+    {!['landing', 'auth'].includes(page) && user && <><IslandMenu page={page} user={user} onLogout={logout} onNavigate={setPage}/>{page === 'chat' && <ChatPage onError={notifyError} onSuccess={notifySuccess}/>}{page === 'dashboard' && <DashboardPage/>}{page === 'exercises' && <ExercisesPage onError={notifyError}/>}{page === 'settings' && <SettingsPage user={user} onError={notifyError} onSuccess={notifySuccess} onUpdate={updated=>{setUser(updated);localStorage.setItem('lumina_user',JSON.stringify(updated));}} onDelete={()=>{logout();notifySuccess('Conta excluída.');}}/>}</>}
     {notice && <div className={`toast toast--${notice.type}`} role="status">{notice.type === 'error' ? <AlertCircle size={18}/> : <CheckCircle2 size={18}/>}<span>{notice.message}</span><button onClick={() => setNotice(null)} aria-label="Fechar aviso"><X size={16}/></button></div>}
   </div>;
 }

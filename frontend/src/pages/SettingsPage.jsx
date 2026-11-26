@@ -1,51 +1,9 @@
-import { Bell, Palette, ShieldCheck } from "lucide-react";
-export default function SettingsPage({ user }) {
-  return (
-    <main className="page-content">
-      <div className="page-title">
-        <div>
-          <span className="eyebrow">DO SEU JEITO</span>
-          <h1>Preferências</h1>
-          <p>Alguns detalhes para deixar a Lumina com a sua cara.</p>
-        </div>
-        <span className="page-title-icon">
-          <Palette size={26} />
-        </span>
-      </div>
-      <div className="settings-list">
-        <article>
-          <span>
-            <Palette size={19} />
-          </span>
-          <div>
-            <strong>Aparência</strong>
-            <p>Interface clara e acolhedora.</p>
-          </div>
-          <span className="setting-value">Claro</span>
-        </article>
-        <article>
-          <span>
-            <Bell size={19} />
-          </span>
-          <div>
-            <strong>Notificações</strong>
-            <p>Preferências de lembretes de estudo.</p>
-          </div>
-          <span className="setting-value">Em breve</span>
-        </article>
-        <article>
-          <span>
-            <ShieldCheck size={19} />
-          </span>
-          <div>
-            <strong>Conta</strong>
-            <p>
-              {user?.name || "Estudante"} · {user?.email || "Conta conectada"}
-            </p>
-          </div>
-          <span className="setting-value">Ativa</span>
-        </article>
-      </div>
-    </main>
-  );
+import { useState } from 'react';
+import { authService } from '../services/api.js';
+export default function SettingsPage({user,onUpdate,onDelete,onError,onSuccess}){
+ const [name,setName]=useState(user.name),[avatar,setAvatar]=useState(user.avatar||''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false);
+ function photo(e){const file=e.target.files?.[0];if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>250000){onError('Escolha PNG, JPEG ou WebP de até 250 KB.');return;}const reader=new FileReader();reader.onload=()=>setAvatar(String(reader.result));reader.onerror=()=>onError('Não foi possível ler a imagem.');reader.readAsDataURL(file);}
+ async function save(e){e.preventDefault();setBusy(true);try{onUpdate(await authService.updateProfile({name,avatar}));onSuccess('Perfil atualizado.');}catch(e){onError(e.message);}finally{setBusy(false);}}
+ async function remove(e){e.preventDefault();if(!window.confirm('Excluir permanentemente sua conta, conversas e exercícios?'))return;setBusy(true);try{await authService.deleteAccount(password);onDelete();}catch(e){onError(e.message);}finally{setBusy(false);}}
+ return <main className="page-content"><div className="page-title"><div><span className="eyebrow">DO SEU JEITO</span><h1>Meu perfil</h1><p>Personalize sua conta Lumina.</p></div></div><form className="lumina-form profile-form" onSubmit={save}><div className="profile-photo">{avatar?<img src={avatar} alt="Foto de perfil"/>:<span>{name.charAt(0).toUpperCase()}</span>}</div><label>Foto de perfil<input type="file" accept="image/png,image/jpeg,image/webp" onChange={photo}/><small>Até 250 KB.</small></label>{avatar&&<button type="button" onClick={()=>setAvatar('')}>Remover foto</button>}<label>Nome<input required minLength={2} maxLength={80} value={name} onChange={e=>setName(e.target.value)}/></label><label>E-mail<input disabled value={user.email}/></label><button className="lumina-primary" disabled={busy}>Salvar alterações</button></form><form className="lumina-form profile-form danger-zone" onSubmit={remove}><h2>Excluir conta</h2><p>Esta ação remove permanentemente sua conta, conversas e exercícios.</p><label>Confirme sua senha<input type="password" required value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password"/></label><button className="lumina-danger" disabled={busy}>Excluir minha conta</button></form></main>;
 }

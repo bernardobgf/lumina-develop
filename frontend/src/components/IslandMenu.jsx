@@ -66,7 +66,7 @@ export default function IslandMenu({ page, user, onNavigate, onLogout }) {
         <div className="island-shell">
           <div className="island-topline">
             <div className="island-brand">
-              <span>Lumina</span>
+              <span className="island-morph">{open ? <Mascot/> : <span className="island-face" aria-hidden="true"><i/><i/></span>}</span><span>Lumina</span>
             </div>
             <span className="island-current-label">{active.label}</span>
             <button
@@ -84,7 +84,7 @@ export default function IslandMenu({ page, user, onNavigate, onLogout }) {
             <div className="island-expanded">
               <div className="island-user-row">
                 <div className="island-user-avatar">
-                  {(user?.name || "U").charAt(0).toUpperCase()}
+                  {user?.avatar ? <img src={user.avatar} alt=""/> : (user?.name || "U").charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <strong>{user?.name || "Estudante"}</strong>
