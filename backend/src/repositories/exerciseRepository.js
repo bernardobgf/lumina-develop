@@ -1,11 +1,8 @@
 const Exercise = require('../models/Exercise');
-
-const exerciseRepository = {
-  findAll: (filters = {}) => Exercise.find(filters).sort({ createdAt: -1 }),
-  findById: (id) => Exercise.findById(id),
+module.exports = {
+  findAll: (filters) => Exercise.find(filters).sort({ createdAt: -1 }),
+  findById: (id, ownerId) => Exercise.findOne({ _id: id, ownerId }),
   create: (data) => Exercise.create(data),
-  update: (id, data) => Exercise.findByIdAndUpdate(id, data, { new: true, runValidators: true }),
-  delete: (id) => Exercise.findByIdAndDelete(id)
+  update: (id, data, ownerId) => Exercise.findOneAndUpdate({ _id: id, ownerId }, data, { new: true, runValidators: true }),
+  delete: (id, ownerId) => Exercise.findOneAndDelete({ _id: id, ownerId })
 };
-
-module.exports = exerciseRepository;

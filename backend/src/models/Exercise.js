@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const exerciseSchema = new mongoose.Schema({
+  ownerId: { type: String, required: true, index: true },
   title: { type: String, required: true, trim: true, maxlength: 180 },
   subject: { type: String, required: true, trim: true },
   statement: { type: String, required: true, trim: true },

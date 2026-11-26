@@ -67,3 +67,12 @@ async function generateAnswer(messages) {
 }
 
 module.exports = { generateAnswer };
+
+const { z } = require('zod');
+async function generateExercise({ subject, difficulty }) {
+  const schema = z.object({ title:z.string().min(1).max(180), statement:z.string().min(1).max(6000), options:z.array(z.string().min(1).max(500)).length(4), answer:z.string().min(1).max(500), explanation:z.string().min(1).max(6000) }).refine(x => new Set(x.options).size === 4 && x.options.includes(x.answer));
+  const raw = await generateAnswer([{role:'user',content:`Crie uma questão educacional em português sobre ${JSON.stringify(subject)}, dificuldade ${difficulty}. Retorne somente JSON com title, statement, options (4 alternativas distintas), answer (texto exato da alternativa correta) e explanation. Sem Markdown.`}]);
+  try { return schema.parse(JSON.parse(raw.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,''))); }
+  catch { throw new AppError('A IA retornou um exercício inválido. Tente novamente.', 502); }
+}
+module.exports.generateExercise = generateExercise;
