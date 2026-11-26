@@ -1,0 +1,27 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./docs');
+const chatRoutes = require('./routes/chatRoutes');
+const authRoutes = require('./routes/authRoutes');
+const requireAuth = require('./middlewares/requireAuth');
+const exerciseRoutes = require('./routes/exerciseRoutes');
+const notFound = require('./middlewares/notFound');
+const errorHandler = require('./middlewares/errorHandler');
+
+const app = express();
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: 'draft-7', legacyHeaders: false }));
+app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'lumina-api' }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/chats', requireAuth, chatRoutes);
+app.use('/api/v1/exercises', requireAuth, exerciseRoutes);
+app.use(notFound);
+app.use(errorHandler);
+module.exports = app;
