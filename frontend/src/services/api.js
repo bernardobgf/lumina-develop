@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3333/api/v1',
-  timeout: 20000,
+  timeout: 65000,
   headers: { 'Content-Type': 'application/json' }
 });
 
@@ -23,6 +23,8 @@ api.interceptors.response.use((response) => response, (error) => {
 });
 
 export const authService = {
+  updateProfile: async (data) => (await api.patch('/profile', data)).data.data,
+  deleteAccount: async (password) => api.delete('/profile', { data: { password } }),
   login: async (credentials) => (await api.post('/auth/login', credentials)).data.data,
   register: async (credentials) => (await api.post('/auth/register', credentials)).data.data
 };
@@ -37,5 +39,7 @@ export const chatService = {
   ask: async (id, content) => (await api.post(`/chats/${id}/ask`, { content })).data.data
 };
 export const exerciseService = {
+  generate: async (data) => (await api.post('/exercises/generate', data)).data.data,
+  remove: async (id) => api.delete(`/exercises/${id}`),
   list: async () => (await api.get('/exercises')).data.data
 };
