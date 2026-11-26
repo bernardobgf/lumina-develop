@@ -341,3 +341,17 @@ describe("API Lumina", () => {
     await request(app).get("/rota-que-nao-existe").expect(404);
   });
 });
+
+test('atualiza perfil e exige senha para excluir a conta', async () => {
+  await request(app).patch('/api/v1/profile').set(auth()).send({name:'Novo nome',avatar:''}).expect(200);
+  await request(app).delete('/api/v1/profile').set(auth()).send({password:'errada'}).expect(403);
+  await request(app).delete('/api/v1/profile').set(auth()).send({password:'senha-segura-123'}).expect(204);
+  await request(app).get('/api/v1/chats').set(auth()).expect(401);
+});
+test('isola exercícios de contas diferentes', async () => {
+  const created = await request(app).post('/api/v1/exercises').set(auth()).send({title:'Questão',subject:'Matemática',statement:'2+2?',answer:'4'}).expect(201);
+  const other = await register({email:'outro@lumina.dev'});
+  const headers = {Authorization:`Bearer ${other.body.data.token}`};
+  await request(app).get(`/api/v1/exercises/${created.body.data._id}`).set(headers).expect(404);
+  await request(app).delete(`/api/v1/exercises/${created.body.data._id}`).set(headers).expect(404);
+});
