@@ -20,8 +20,13 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: 'draf
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'lumina-api' }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/chats', requireAuth, chatRoutes);
-app.use('/api/v1/exercises', requireAuth, exerciseRoutes);
+app.use('/api/v1/profile', require('./routes/profileRoutes'));
+const activeAccount = require('./middlewares/asyncHandler')(async (req, _res, next) => {
+  if (!await require('./models/User').exists({ _id: req.user.id })) throw new (require('./utils/AppError'))('Conta não encontrada.', 401);
+  next();
+});
+app.use('/api/v1/chats', requireAuth, activeAccount, chatRoutes);
+app.use('/api/v1/exercises', requireAuth, activeAccount, exerciseRoutes);
 app.use(notFound);
 app.use(errorHandler);
 module.exports = app;
